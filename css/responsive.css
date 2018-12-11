@@ -1,0 +1,138 @@
+nav h1 {
+    height: 100%;
+    font-size: 1.5em;
+    padding-top: 20px;
+}
+
+.inside #footer {
+    width: 100%;
+}
+
+.filter-options {
+    height: 100%;
+    padding: 1% 0;
+    text-align: center;
+}
+
+.filter-options h2 {
+    display: inline-block;
+    padding-right: 10px;
+}
+
+#restaurnat-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#restaurants-list li {
+    padding: 30px;
+    margin: 2%;
+    text-align: center;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#restaurants-list li a {
+    box-sizing: border-box;
+    min-width: 100%;
+}
+
+/* Screen Breakpoints */
+@media screen and (min-width: 320px) and (max-width: 579px) {
+    #map {
+        height: 350px;
+    }
+    
+    .filter-options select {
+        height: 50px;
+        width: 25%;
+    }
+
+    #restaurants-list li {
+        width: 60%;
+    }
+}
+
+@media screen and (min-width: 520px) {
+    .filter-options select {
+        height: 50px;
+        width: 23%;
+    }
+}
+
+@media screen and (min-width: 580px) {
+    #map {
+        height: 350px;
+    }
+
+    /* nav h1 a {
+        font-size: 1.4em;
+    } */
+
+    .filter-options h2, select {
+        font-size: 2em;
+    }
+
+    #restaurants-list li {
+        width: 200px;
+    }
+    #restaurants-list li h1 {
+        font-size: 1.4em;
+    }
+    #restaurants-list p {
+        font-size: 1.2em;
+    }
+    #restaurants-list li a {
+        font-size: 1.3em;
+    }
+}
+
+
+/* Restaurant details */
+#breadcrumb {
+    width: 100%;
+}
+
+#maincontent {
+    width: 100vw;
+}
+
+#container {
+    padding-top: 128px;
+}
+
+#restaurant-container, #reviews-container {
+    padding: 20px 40px;
+}
+
+#restaurant-img {
+    min-width: 90%;      
+}
+
+#restaurant-cuisine {
+    min-width: 90%;
+    font-size: 2rem;
+}
+
+/* Screen Breakpoints */
+@media screen and (min-width: 320px) and (max-width: 579px) {
+    #breadcrumb li {
+        font-size: 2rem;
+    }
+
+    #restaurant-address {
+        font-size: 1.5rem;
+    }
+
+    #restaurant-hours {
+        font-size: 1.2rem;
+    }
+}
+
+@media screen and (min-width: 520px) {
+    
+}
+
+@media screen and (min-width: 580px) {
+    
+}
