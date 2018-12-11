@@ -1,0 +1,23 @@
+{
+  "name": "mws-restaurant-stage-2-front-end",
+  "version": "1.0.0",
+  "description": "--- #### _Three Stage Course Material Project - Restaurant Reviews_",
+  "main": "/",
+  "dependencies": {},
+  "devDependencies": {
+    "idb": "^2.1.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashwani99/mws-restaurant-stage-2-front-end.git"
+  },
+  "author": "Ashwani Gupta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ashwani99/mws-restaurant-stage-2-front-end/issues"
+  },
+  "homepage": "https://github.com/ashwani99/mws-restaurant-stage-2-front-end#readme"
+}
