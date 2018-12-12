@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   fetchNeighborhoods();
   fetchCuisines();
   registerServiceWorker();
+  document.getElementById('neighborhoods-select').addEventListener('change', updateRestaurants);
+  document.getElementById('cuisines-select').addEventListener('change', updateRestaurants);
 });
 
 /**
