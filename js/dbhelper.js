@@ -1,3 +1,5 @@
+import idb from 'idb';
+
 /**
  * Common database helper functions.
  */
@@ -16,12 +18,30 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
+    // create IDB object store
+    let dbPromise = idb.open('restaurant-review', 1, (upgradeDb) => {
+      let restaurantStore = upgradeDb.createObjectStore('restaurants');
+    });
+
     fetch(DBHelper.API_BASE_URL).then((res) => {
       if (res.ok) {
-        return res.json();
+        // get the restaurants from idb when offline
+        return dbPromise.then((db) => {
+          let tx = db.transaction('restaurants', 'readwrite');
+          let restaurantStore = tx.objectStore('restaurants');
+          restaurantStore.put(res.json(), 'restaurants');
+          return res.json();
+        });
       } else {
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+        // const error = (`Request failed. Returned status of ${xhr.status}`);
+        // callback(error, null);
+        
+        // get the restaurants from idb when offline
+        dbPromise.then((db) => {
+          let tx = db.transaction('restaurants');
+          let restaurantStore = tx.objectStore('restaurants');
+          return restaurantStore.get('restaurants');
+        });
       }
     }).then((restaurants) => {
       callback(null, restaurants);
@@ -173,6 +193,5 @@ class DBHelper {
     );
     return marker;
   } */
-
 }
 
