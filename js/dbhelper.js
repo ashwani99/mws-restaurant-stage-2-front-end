@@ -3,7 +3,7 @@ import idb from 'idb';
 /**
  * Common database helper functions.
  */
-class DBHelper {
+export default class DBHelper {
 
   /**
    * Database URL.
@@ -26,12 +26,15 @@ class DBHelper {
     fetch(DBHelper.API_BASE_URL).then((res) => {
       if (res.ok) {
         // get the restaurants from idb when offline
-        return dbPromise.then((db) => {
-          let tx = db.transaction('restaurants', 'readwrite');
-          let restaurantStore = tx.objectStore('restaurants');
-          restaurantStore.put(res.json(), 'restaurants');
-          return res.json();
+        return res.json().then((data) => {
+          return dbPromise.then((db) => {
+            let tx = db.transaction('restaurants', 'readwrite');
+            let restaurantStore = tx.objectStore('restaurants');
+            restaurantStore.put(data, 'restaurants');
+            return data;
+          });
         });
+        
       } else {
         // const error = (`Request failed. Returned status of ${xhr.status}`);
         // callback(error, null);

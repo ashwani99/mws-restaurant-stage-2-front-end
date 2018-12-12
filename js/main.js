@@ -1,4 +1,5 @@
 import DBHelper from './dbhelper';
+// import L from 'leaflet';
 
 let restaurants,
   neighborhoods,
@@ -77,11 +78,12 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize leaflet map, called from HTML.
  */
 let initMap = () => {
-  self.newMap = L.map('map', {
+  let newMap = L.map('map', {
         center: [40.722216, -73.987501],
         zoom: 12,
         scrollWheelZoom: false
       });
+  console.log(L);
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
     mapboxToken: 'pk.eyJ1Ijoia29naW5nIiwiYSI6ImNqcGM4M3oxbTBiczEzcW14anV2NW41MG8ifQ.ERUns5YDJZDSlbusPJoEvw',
     maxZoom: 18,
@@ -227,4 +229,3 @@ let registerServiceWorker = () => {
     console.log('Error occured while registering service worker!' + err);
   });
 }
-

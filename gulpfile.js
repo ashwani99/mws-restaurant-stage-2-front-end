@@ -9,7 +9,7 @@ var buffer = require("vinyl-buffer");
 
 gulp.task('buildjs', function() {
     ['js/dbhelper.js', 'js/main.js'].map(function(file) {
-        return browserify( {entries: file} )
+        return browserify( {entries: [file]} )
             .transform(babelify.configure({presets: ['env']}))
             .bundle()
             .pipe(source('combined.min.js'))
