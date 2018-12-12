@@ -78,7 +78,7 @@ let fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize leaflet map, called from HTML.
  */
 let initMap = () => {
-  let newMap = L.map('map', {
+  self.newMap = L.map('map', {
         center: [40.722216, -73.987501],
         zoom: 12,
         scrollWheelZoom: false
@@ -91,7 +91,7 @@ let initMap = () => {
       '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
       'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     id: 'mapbox.streets'
-  }).addTo(newMap);
+  }).addTo(self.newMap);
 
   updateRestaurants();
 }
