@@ -168,7 +168,8 @@ let createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  const createdAt = new Date(review.createdAt);
+  date.innerHTML = `${createdAt.getDate()}-${createdAt.getMonth()+1}-${createdAt.getFullYear()}`;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -210,12 +211,35 @@ let getParameterByName = (name, url) => {
 
 
 let submitReview = (e) => {
+  console.log('asdasd');
+  let reviewerName = document.getElementById('reviewer-name');
+  let reviewRating = document.getElementById('reviewer-rating');
+  let reviewComments = document.getElementById('reviewer-comments');
+
+  if (!reviewerName.checkValidity()) {
+    toastr.error(reviewerName.validationMessage);
+    return;
+  }
+  if (!reviewRating.checkValidity()) {
+    toastr.error(reviewRating.validationMessage);
+    return;
+  }
+  if (!reviewComments.checkValidity()) {
+    toastr.error(reviewComments.validationMessage);
+    return;
+  }
+  
   let reviewPayload = {
     "restaurant_id": self.restaurant.id,
-    "name": document.getElementById('reviewer-name').value,
-    "rating": document.getElementById('reviewer-rating').value,
-    "comments": document.getElementById('reviewer-comments').value
+    "name": reviewerName.value,
+    "createdAt": new Date().getTime(),
+    "updatedAt": new Date().getTime(),
+    "rating": reviewRating.value,
+    "comments": reviewComments.value
   };
+
+  document.getElementById('reviews-list')
+    .appendChild(createReviewHTML(reviewPayload));
 
   // if offline, then store to add review later when online
   if (!navigator.onLine) {
