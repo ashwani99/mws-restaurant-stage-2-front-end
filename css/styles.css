@@ -268,16 +268,28 @@ nav h1 a {
   flex-flow: wrap;
 }
 
-#review-form-container #name {
-  width: 80%;
+#add-review-form {
+  width: 100%;
 }
 
-#review-form-container #rating {
-  width: 18%;
+#review-form-container #reviewer-name {
+  box-sizing: border-box;
+  width: calc(80% - 10px);
+  height: 30px;
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+#review-form-container #reviewer-rating {
+  box-sizing: border-box;
+  width: 20%;
+  height: 30px;
   float: right;
 }
 
 #review-form-container #reviewer-comments {
+  box-sizing: border-box;
   width: 100%;
   height: 100px;
 }
