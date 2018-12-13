@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   document.getElementById('review-form-submit-btn').addEventListener('click', submitReview);
   window.addEventListener('online', () => {
     toastr.success('You are now online');
-    addPostponedReviews(); //yet to be added
+    if (postponedReviews.length > 0) {
+      addPostponedReviews();
+    }
   });
   window.addEventListener('offline', () => {
     toastr.warning('You are now offline. Please check your Internet connection');
@@ -211,7 +213,7 @@ let getParameterByName = (name, url) => {
 
 
 let submitReview = (e) => {
-  console.log('asdasd');
+  // console.log(postponedReviews);
   let reviewerName = document.getElementById('reviewer-name');
   let reviewRating = document.getElementById('reviewer-rating');
   let reviewComments = document.getElementById('reviewer-comments');
@@ -241,15 +243,41 @@ let submitReview = (e) => {
   document.getElementById('reviews-list')
     .appendChild(createReviewHTML(reviewPayload));
 
-  // if offline, then store to add review later when online
-  if (!navigator.onLine) {
-    postponedReviews.push(reviewPayload);
-    return;
-  }
+  // update reviews in IDB
+  DBHelper.DB_PROMISE.then((db) => {
+    let tx = db.transaction('restaurant-reviews', 'readwrite');
+    let reviewStore = tx.objectStore('restaurant-reviews');
+    reviewStore.get('reviews').then((reviews) => {
+      reviews.push(reviewPayload);
+      reviewStore.put(reviews, 'reviews');
+    });
+  
+    // if offline, then store to add review later when online
+    if (!navigator.onLine) {
+      postponedReviews.push(reviewPayload);
+      console.log('offline');
+      return;
+    }
 
-  fetch(`${DBHelper.API_BASE_URL}/reviews`, {
-    method: 'POST',
-    body: JSON.stringify(reviewPayload),
-    headers: { 'Content-Type': 'application/json' }
+    fetch(`${DBHelper.API_BASE_URL}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(reviewPayload),
+      headers: { 'Content-Type': 'application/json' }
+    });
   });
 }
+
+let addPostponedReviews = () => {
+  Promise.all(
+    postponedReviews.map((review) => {
+      fetch(`${DBHelper.API_BASE_URL}/reviews`, {
+        method: 'POST',
+        body: JSON.stringify(review),
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+  ).then(() => {
+    toastr.success('Postponed reviews have been added successfully');
+    postponedReviews.length=0;
+  })
+};

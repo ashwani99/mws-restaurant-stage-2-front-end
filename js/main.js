@@ -1,5 +1,5 @@
 import DBHelper from './dbhelper';
-// import L from 'leaflet';
+import toastr from 'toastr';
 
 let restaurants,
   neighborhoods,
@@ -17,6 +17,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   registerServiceWorker();
   document.getElementById('neighborhoods-select').addEventListener('change', updateRestaurants);
   document.getElementById('cuisines-select').addEventListener('change', updateRestaurants);
+  window.addEventListener('online', () => {
+    toastr.success('You are now online');
+    // addPostponedReviews(); //yet to be added
+  });
+  window.addEventListener('offline', () => {
+    toastr.warning('You are now offline. Please check your Internet connection');
+  });
 });
 
 /**
