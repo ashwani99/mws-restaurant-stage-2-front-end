@@ -1,13 +1,24 @@
 import DBHelper from './dbhelper';
+import toastr from 'toastr';
 
 let restaurant;
 var newMap;
+
+let postponedReviews = new Array();
 
 /**
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
+  document.getElementById('review-form-submit-btn').addEventListener('click', submitReview);
+  window.addEventListener('online', () => {
+    toastr.success('You are now online');
+    addPostponedReviews(); //yet to be added
+  });
+  window.addEventListener('offline', () => {
+    toastr.warning('You are now offline. Please check your Internet connection');
+  });
 });
 
 /**
@@ -126,23 +137,25 @@ let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours)
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+let fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
+  DBHelper.fetchReviews(self.restaurant.id).then((reviews) => {
+    if (!reviews) {
+      const noReviews = document.createElement('p');
+      noReviews.innerHTML = 'No reviews yet!';
+      container.appendChild(noReviews);
+      return;
+    }
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
   });
-  container.appendChild(ul);
 }
 
 /**
@@ -193,4 +206,26 @@ let getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+
+let submitReview = (e) => {
+  let reviewPayload = {
+    "restaurant_id": self.restaurant.id,
+    "name": document.getElementById('reviewer-name').value,
+    "rating": document.getElementById('reviewer-rating').value,
+    "comments": document.getElementById('reviewer-comments').value
+  };
+
+  // if offline, then store to add review later when online
+  if (!navigator.onLine) {
+    postponedReviews.push(reviewPayload);
+    return;
+  }
+
+  fetch(`${DBHelper.API_BASE_URL}/reviews`, {
+    method: 'POST',
+    body: JSON.stringify(reviewPayload),
+    headers: { 'Content-Type': 'application/json' }
+  });
 }

@@ -11,7 +11,16 @@ export default class DBHelper {
    */
   static get API_BASE_URL() {
     const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/restaurants`;
+    return `http://localhost:${port}`;
+  }
+
+  static get DB_PROMISE() {
+    // create IDB object store
+    let dbPromise = idb.open('restaurant-review', 1, (upgradeDb) => {
+      let restaurantStore = upgradeDb.createObjectStore('restaurants');
+      let reviewStore = upgradeDb.createObjectStore('restaurant-reviews');
+    });
+    return dbPromise;
   }
 
   /**
@@ -19,15 +28,15 @@ export default class DBHelper {
    */
   static fetchRestaurants(callback) {
     // create IDB object store
-    let dbPromise = idb.open('restaurant-review', 1, (upgradeDb) => {
-      let restaurantStore = upgradeDb.createObjectStore('restaurants');
-    });
+    // let dbPromise = idb.open('restaurant-review', 1, (upgradeDb) => {
+    //   let restaurantStore = upgradeDb.createObjectStore('restaurants');
+    // });
 
-    fetch(DBHelper.API_BASE_URL).then((res) => {
+    return fetch(`${DBHelper.API_BASE_URL}/restaurants`).then((res) => {
       if (res.ok) {
-        // get the restaurants from idb when offline
+        // store the restaurants from idb when offline
         return res.json().then((data) => {
-          return dbPromise.then((db) => {
+          return this.DB_PROMISE.then((db) => {
             let tx = db.transaction('restaurants', 'readwrite');
             let restaurantStore = tx.objectStore('restaurants');
             restaurantStore.put(data, 'restaurants');
@@ -40,7 +49,7 @@ export default class DBHelper {
         // callback(error, null);
         
         // get the restaurants from idb when offline
-        dbPromise.then((db) => {
+        this.DB_PROMISE.then((db) => {
           let tx = db.transaction('restaurants');
           let restaurantStore = tx.objectStore('restaurants');
           return restaurantStore.get('restaurants');
@@ -56,18 +65,34 @@ export default class DBHelper {
    */
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
+    // DBHelper.fetchRestaurants((error, restaurants) => {
+    //   if (error) {
+    //     callback(error, null);
+    //   } else {
+    //     const restaurant = restaurants.find(r => r.id == id);
+    //     if (restaurant) { // Got the restaurant
+    //       callback(null, restaurant);
+    //     } else { // Restaurant does not exist in the database
+    //       callback('Restaurant does not exist', null);
+    //     }
+    //   }
+    // });
+
+    fetch(`${DBHelper.API_BASE_URL}/restaurants/${id}`)
+      .then((res) => {
+        if (res.ok) {
+          return res.json().then((restaurant) => {
+            if (restaurant) {
+              callback(null, restaurant);
+            } else {
+              callback('Restaurant does not exists', null);
+            }
+          });
         }
-      }
-    });
+      })
+      .catch((err) => {
+        callback(err, null);
+      });
   }
 
   /**
@@ -196,5 +221,31 @@ export default class DBHelper {
     );
     return marker;
   } */
+
+
+  static fetchReviews(id) {
+    // console.log('fetching reviews');
+    return fetch(`${this.API_BASE_URL}/reviews/`).then((res) => {
+      if (res.ok) {
+        // store the reviews from idb when offline
+        return res.json().then((reviews) => {
+          return this.DB_PROMISE.then((db) => {
+            let tx = db.transaction('restaurant-reviews', 'readwrite');
+            let reviewStore = tx.objectStore('restaurant-reviews');
+            reviewStore.put(reviews, 'reviews');
+            // console.log(reviews.filter((review) => review.restaurant_id==id));
+            return reviews.filter((review) => review.restaurant_id==id);
+          });
+        });
+      } else {
+        // get the restaurants from idb when offline
+        this.DB_PROMISE.then((db) => {
+          let tx = db.transaction('restaurant-reviews');
+          let restaurantStore = tx.objectStore('restaurant-reviews');
+          return restaurantStore.get('reviews').filter((review) => review.restaurant_id==id);
+        });
+      }
+    });
+  }
 }
 
