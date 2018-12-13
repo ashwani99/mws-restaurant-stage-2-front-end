@@ -240,22 +240,61 @@ nav h1 a {
   text-transform: uppercase;
 	width: 80%;
 }
-#restaurant-container, #reviews-container {
+#restaurant-container, #reviews-container, #review-form-container {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
   /* padding: 140px 40px 30px; */
   width: calc(50% - 80px);
 }
-#reviews-container {
+#reviews-container, #review-form-container {
   padding: 30px 40px 80px;
 }
-#reviews-container h2 {
+#reviews-container h2, #review-form-container h3 {
   color: #f58500;
   font-size: 24pt;
   font-weight: 300;
   letter-spacing: -1px;
   padding-bottom: 1pt;
 }
+
+#review-form-container h3 {
+  font-size: 20pt;
+}
+
+
+#review-form-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: wrap;
+}
+
+#review-form-container #name {
+  width: 80%;
+}
+
+#review-form-container #rating {
+  width: 18%;
+  float: right;
+}
+
+#review-form-container #comment {
+  width: 100%;
+  height: 100px;
+}
+
+#review-form-container #review-form-submit-btn {
+  background-color: orange;
+  border-bottom: 3px solid #eee;
+  color: #fff;
+  display: inline-block;
+  font-size: 10pt;
+  margin: 15px 0 0;
+  padding: 8px 30px 10px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 #reviews-list {
   margin: 0;
   padding: 0;
