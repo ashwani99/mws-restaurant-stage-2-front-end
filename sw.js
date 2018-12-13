@@ -14,9 +14,12 @@ self.addEventListener('install', (event) => {
         'js/main.js',
         'js/dbhelper.js',
         'js/restaurant_info.js',
+        'js/combined.min.js',
+        'js/restaurant-combined.min.js',
         'css/styles.css',
         'css/responsive.css',
         'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css',
+        'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css',
         'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
       ]);
     })
