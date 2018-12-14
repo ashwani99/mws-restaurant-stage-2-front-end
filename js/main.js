@@ -1,11 +1,13 @@
 import DBHelper from './dbhelper';
-// import L from 'leaflet';
+import toastr from 'toastr';
 
 let restaurants,
   neighborhoods,
   cuisines
 var newMap
 var markers = []
+
+let postponedFavourites = new Array();
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -17,6 +19,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   registerServiceWorker();
   document.getElementById('neighborhoods-select').addEventListener('change', updateRestaurants);
   document.getElementById('cuisines-select').addEventListener('change', updateRestaurants);
+  window.addEventListener('online', () => {
+    toastr.success('You are now online');
+    updateFavourites();
+  });
+  window.addEventListener('offline', () => {
+    toastr.warning('You are now offline. Please check your Internet connection');
+  });
 });
 
 /**
@@ -190,6 +199,63 @@ let createRestaurantHTML = (restaurant) => {
   more.href = DBHelper.urlForRestaurant(restaurant);
   li.append(more)
 
+  const favouriteToggle = document.createElement('button');
+  
+  console.log(restaurant);
+  if (restaurant.is_favorite == 'true') {
+    favouriteToggle.innerHTML = 'unfavourite';
+    favouriteToggle.style.backgroundColor = '#FF294D';
+    favouriteToggle.classList.add('favourited');
+  } else {
+    favouriteToggle.innerHTML = 'favourite';
+    favouriteToggle.style.backgroundColor = '#7E7D7D';
+    favouriteToggle.classList.remove('favourited');
+  }
+
+  favouriteToggle.addEventListener('click', () => {
+    if (favouriteToggle.innerHTML === 'favourite') {
+      favouriteToggle.innerHTML = 'unfavourite';
+      // console.log(favouriteToggle.classList);
+      favouriteToggle.style.backgroundColor = '#FF294D';
+      favouriteToggle.classList.remove('favourited');
+    } else {
+      favouriteToggle.innerHTML = 'favourite';
+      favouriteToggle.style.backgroundColor = '#7E7D7D';
+      favouriteToggle.classList.add('favourited');
+    }
+    
+    // add to idb
+    restaurant.is_favorite = !restaurant.is_favorite ;
+    console.log(restaurant.is_favorite);
+    DBHelper.DB_PROMISE.then((db) => {
+        let tx = db.transaction('restaurants', 'readwrite');
+        let restaurantStore = tx.objectStore('restaurants');
+        restaurantStore.get('restaurants').then((restaurants) => {
+          restaurants.map((currentRestaurant) => {
+            if (currentRestaurant.id == restaurant.id) {
+              currentRestaurant.is_favorite = restaurant.is_favorite;
+            }
+          });
+          console.log(restaurants);
+          restaurantStore.put(restaurants, 'restaurants');
+        });
+      });
+    
+    // add to server
+    if (!navigator.onLine) {
+      postponedFavourites.push(restaurant);
+      return;
+    }
+
+    // console.log(restaurant);
+    let isFavourite = restaurant.is_favorite;
+    fetch(`${DBHelper.API_BASE_URL}/restaurants/${restaurant.id}/?is_favorite=${isFavourite}`, {
+      method: 'PUT'
+    });
+  });
+  
+  li.append(favouriteToggle);
+
   return li
 }
 
@@ -231,3 +297,18 @@ let registerServiceWorker = () => {
     console.log('Error occured while registering service worker!' + err);
   });
 }
+
+
+let updateFavourites = () => {
+  Promise.all(
+    postponedFavourites.map((restaurant) => {
+      let isFavourite = restaurant.is_favorite;
+      fetch(`${DBHelper.API_BASE_URL}/restaurants/${restaurant.id}/?is_favorite=${isFavourite}`, {
+        method: 'PUT'
+      });
+    })
+  ).then(() => {
+    toastr.success('Favourites have been updated successfully');
+    postponedReviews.length=0;
+  })
+};

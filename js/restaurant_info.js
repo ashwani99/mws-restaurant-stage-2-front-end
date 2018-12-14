@@ -1,13 +1,26 @@
 import DBHelper from './dbhelper';
+import toastr from 'toastr';
 
 let restaurant;
 var newMap;
+
+let postponedReviews = new Array();
 
 /**
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
+  document.getElementById('review-form-submit-btn').addEventListener('click', submitReview);
+  window.addEventListener('online', () => {
+    toastr.success('You are now online');
+    if (postponedReviews.length > 0) {
+      addPostponedReviews();
+    }
+  });
+  window.addEventListener('offline', () => {
+    toastr.warning('You are now offline. Please check your Internet connection');
+  });
 });
 
 /**
@@ -126,23 +139,25 @@ let fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours)
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-let fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+let fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
+  DBHelper.fetchReviews(self.restaurant.id).then((reviews) => {
+    if (!reviews) {
+      const noReviews = document.createElement('p');
+      noReviews.innerHTML = 'No reviews yet!';
+      container.appendChild(noReviews);
+      return;
+    }
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
   });
-  container.appendChild(ul);
 }
 
 /**
@@ -155,7 +170,8 @@ let createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  const createdAt = new Date(review.createdAt);
+  date.innerHTML = `${createdAt.getDate()}-${createdAt.getMonth()+1}-${createdAt.getFullYear()}`;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -194,3 +210,73 @@ let getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+
+let submitReview = (e) => {
+  // console.log(postponedReviews);
+  let reviewerName = document.getElementById('reviewer-name');
+  let reviewRating = document.getElementById('reviewer-rating');
+  let reviewComments = document.getElementById('reviewer-comments');
+
+  if (!reviewerName.checkValidity()) {
+    toastr.error(reviewerName.validationMessage);
+    return;
+  }
+  if (!reviewRating.checkValidity()) {
+    toastr.error(reviewRating.validationMessage);
+    return;
+  }
+  if (!reviewComments.checkValidity()) {
+    toastr.error(reviewComments.validationMessage);
+    return;
+  }
+  
+  let reviewPayload = {
+    "restaurant_id": self.restaurant.id,
+    "name": reviewerName.value,
+    "createdAt": new Date().getTime(),
+    "updatedAt": new Date().getTime(),
+    "rating": reviewRating.value,
+    "comments": reviewComments.value
+  };
+
+  document.getElementById('reviews-list')
+    .appendChild(createReviewHTML(reviewPayload));
+
+  // update reviews in IDB
+  DBHelper.DB_PROMISE.then((db) => {
+    let tx = db.transaction('restaurant-reviews', 'readwrite');
+    let reviewStore = tx.objectStore('restaurant-reviews');
+    reviewStore.get('reviews').then((reviews) => {
+      reviews.push(reviewPayload);
+      reviewStore.put(reviews, 'reviews');
+    });
+  
+    // if offline, then store to add review later when online
+    if (!navigator.onLine) {
+      postponedReviews.push(reviewPayload);
+      return;
+    }
+
+    fetch(`${DBHelper.API_BASE_URL}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(reviewPayload),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  });
+}
+
+let addPostponedReviews = () => {
+  Promise.all(
+    postponedReviews.map((review) => {
+      fetch(`${DBHelper.API_BASE_URL}/reviews`, {
+        method: 'POST',
+        body: JSON.stringify(review),
+        headers: { 'Content-Type': 'application/json' }
+      })
+    })
+  ).then(() => {
+    toastr.success('Postponed reviews have been added successfully');
+    postponedReviews.length=0;
+  })
+};

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" value="width=device-width; initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Normalize.css for better cross-browser consistency -->
   <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
   <!-- Main CSS file -->
@@ -11,6 +11,7 @@
   <!-- Responsive CSS file -->
   <link rel="stylesheet" href="css/responsive.css" type="text/css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin=""/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <link rel="manifest" href="/manifest.json">
   <title>Restaurant Info</title>
 </head>
@@ -53,6 +54,16 @@
         <ul id="reviews-list" aria-label="reviews for the restaurant"></ul>
       </section>
       <!-- End reviews -->
+
+      <section id="review-form-container">
+        <h3>Add your review</h3>
+        <form id="add-review-form">
+          <input type="text" id="reviewer-name" aria-label="your name" placeholder="Your name here" required>
+          <input type="number" min="1" max="5" id="reviewer-rating" aria-label="restaurant rating" placeholder="Rating" required>
+          <textarea id="reviewer-comments" id="comment" placeholder="Your review"></textarea>
+          <button type="button" id="review-form-submit-btn">Add review</button>
+        </form>
+      </section>
     </div>
   </main>
   <!-- End main -->
