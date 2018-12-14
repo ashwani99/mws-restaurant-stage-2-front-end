@@ -255,7 +255,6 @@ let submitReview = (e) => {
     // if offline, then store to add review later when online
     if (!navigator.onLine) {
       postponedReviews.push(reviewPayload);
-      console.log('offline');
       return;
     }
 

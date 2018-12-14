@@ -249,6 +249,10 @@ nav h1 a {
 #reviews-container, #review-form-container {
   padding: 30px 40px 80px;
 }
+
+#review-form-container {
+  width: 50%;
+}
 #reviews-container h2, #review-form-container h3 {
   color: #f58500;
   font-size: 24pt;
@@ -270,6 +274,7 @@ nav h1 a {
 
 #add-review-form {
   width: 100%;
+  font-size: 1em;
 }
 
 #review-form-container #reviewer-name {
@@ -313,7 +318,7 @@ nav h1 a {
 }
 #reviews-list li {
   background-color: #fff;
-    border: 2px solid #f3f3f3;
+  border: 2px solid #f3f3f3;
   display: block;
   list-style-type: none;
   margin: 0 0 30px;
